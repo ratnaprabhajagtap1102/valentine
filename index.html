@@ -6,109 +6,90 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #ffe6f0, #ffd6e8);
-            text-align: center;
+            background: linear-gradient(135deg,#ffe6f0,#ffd6e8);
             height: 100vh;
-            overflow: hidden;
+            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow: hidden;
         }
 
+        /* MAIN BOX */
         .box {
             background: white;
             padding: 40px;
             border-radius: 20px;
             box-shadow: 0 0 25px pink;
+            text-align: center;
             position: relative;
-            z-index: 5;
+            z-index: 10; /* ALWAYS ABOVE ANIMATIONS */
         }
 
         button {
-            padding: 10px 25px;
+            padding: 12px 28px;
             font-size: 18px;
-            margin: 10px;
+            margin: 12px;
             border-radius: 10px;
             border: none;
             cursor: pointer;
         }
 
         .yes {
-            background-color: #ff4d6d;
+            background: #ff4d6d;
             color: white;
         }
 
         .no {
-            background-color: grey;
+            background: grey;
             color: white;
             position: absolute;
+            left: 60%;
         }
 
-        /* Popup */
+        /* POPUP */
         .popup {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 100%;
+            inset: 0;
             background: rgba(0,0,0,0.5);
             justify-content: center;
             align-items: center;
-            z-index: 3;
+            z-index: 20;
         }
 
-        .popup-content {
+        .popup-box {
             background: white;
             padding: 30px;
             border-radius: 15px;
-            animation: pop 0.3s ease;
+            text-align: center;
         }
 
-        @keyframes pop {
-            from { transform: scale(0.6); }
-            to { transform: scale(1); }
+        /* HEARTS */
+        .heart, .kiss {
+            position: fixed;
+            pointer-events: none; /* CRITICAL FIX */
+            user-select: none;
         }
 
-        /* Floating hearts */
         .heart {
-            position: fixed;
-            color: pink;
-            font-size: 20px;
-            animation: floatUp 6s linear infinite;
-            z-index: 1;
-            pointer-events: none;
+            animation: float 6s linear forwards;
         }
 
-        @keyframes floatUp {
-            from {
-                transform: translateY(100vh);
-                opacity: 1;
-            }
-            to {
-                transform: translateY(-10vh);
-                opacity: 0;
-            }
+        @keyframes float {
+            from { transform: translateY(100vh); opacity:1; }
+            to   { transform: translateY(-10vh); opacity:0; }
         }
 
-        /* Kiss emoji rain */
         .kiss {
-            position: fixed;
             font-size: 28px;
             animation: fall 3s linear forwards;
-            z-index: 1;
-            pointer-events: none;
         }
 
         @keyframes fall {
-            from {
-                transform: translateY(-10vh);
-            }
-            to {
-                transform: translateY(100vh);
-            }
+            from { transform: translateY(-10vh); }
+            to   { transform: translateY(100vh); }
         }
-
     </style>
 </head>
 
@@ -117,16 +98,16 @@
 <div class="box">
     <h2>Hey handsome, will you be my Valentine? 💖</h2>
 
-    <button class="yes" onclick="showPopup()">Yes</button>
+    <button class="yes" onclick="sayYes()">Yes</button>
     <button class="no" id="noBtn">No</button>
 </div>
 
 
 <!-- POPUP -->
 <div class="popup" id="popup">
-    <div class="popup-content">
+    <div class="popup-box">
         <h2>Good decision 😘</h2>
-        <p>I love you soooo much ❤️</p>
+        <p>I love you ❤️</p>
         <button onclick="closePopup()">Close</button>
     </div>
 </div>
@@ -134,63 +115,55 @@
 
 <script>
 
-    // Popup
-    function showPopup() {
-        document.getElementById("popup").style.display = "flex";
-        startKissRain();
+/* YES CLICK */
+function sayYes(){
+    document.getElementById("popup").style.display="flex";
+    kissRain();
+}
+
+/* CLOSE POPUP */
+function closePopup(){
+    document.getElementById("popup").style.display="none";
+}
+
+/* NO BUTTON RUN */
+const noBtn = document.getElementById("noBtn");
+
+noBtn.addEventListener("mouseenter", () => {
+    const x = Math.random()*200 - 100;
+    const y = Math.random()*120 - 60;
+    noBtn.style.transform = `translate(${x}px,${y}px)`;
+});
+
+
+/* FLOATING HEARTS */
+function createHeart(){
+    const h = document.createElement("div");
+    h.className="heart";
+    h.innerHTML="❤️";
+    h.style.left=Math.random()*100+"vw";
+    h.style.fontSize=(15+Math.random()*25)+"px";
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(),6000);
+}
+setInterval(createHeart,400);
+
+
+/* KISS RAIN */
+function kissRain(){
+    for(let i=0;i<30;i++){
+        setTimeout(()=>{
+            const k=document.createElement("div");
+            k.className="kiss";
+            k.innerHTML="😘";
+            k.style.left=Math.random()*100+"vw";
+            document.body.appendChild(k);
+            setTimeout(()=>k.remove(),3000);
+        },i*80);
     }
-
-    function closePopup() {
-        document.getElementById("popup").style.display = "none";
-    }
-
-
-    // No button runs away
-    const noBtn = document.getElementById("noBtn");
-
-    noBtn.addEventListener("mouseover", function() {
-        const x = Math.random() * 300 - 150;
-        const y = Math.random() * 200 - 100;
-        noBtn.style.transform = translate(${x}px, ${y}px);
-    });
-
-
-    // Floating hearts continuously
-    function createHeart() {
-        const heart = document.createElement("div");
-        heart.className = "heart";
-        heart.innerHTML = "❤️";
-
-        heart.style.left = Math.random() * 100 + "vw";
-        heart.style.fontSize = (15 + Math.random() * 25) + "px";
-
-        document.body.appendChild(heart);
-
-        setTimeout(() => heart.remove(), 6000);
-    }
-
-    setInterval(createHeart, 400);
-
-
-    // Kiss emoji rain when YES clicked
-    function startKissRain() {
-        for (let i = 0; i < 30; i++) {
-            setTimeout(() => {
-                const kiss = document.createElement("div");
-                kiss.className = "kiss";
-                kiss.innerHTML = "😘";
-
-                kiss.style.left = Math.random() * 100 + "vw";
-
-                document.body.appendChild(kiss);
-
-                setTimeout(() => kiss.remove(), 3000);
-            }, i * 100);
-        }
-    }
+}
 
 </script>
 
 </body>
-
 </html>
